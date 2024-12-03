@@ -1,0 +1,208 @@
+## Script statistical analysis checked the 3/12/24
+
+#############1. Representativeness of MPA managers #############
+
+install.packages("DescTools")
+library(DescTools)
+
+# G test on the AMP type for all France metropolitan
+GTest(c(125,12,2,5,7,1),p=c(0.810,0.0896,0.022,0.0448,0.0261,0.0075))
+#G = 3.2936, X-squared df = 5, p-value = 0.6548
+
+# G test on the AMP type for Channel and North Sea 
+GTest(c(44,8,2,2),p=c(0.81,0.12,0.05,0.02))
+#G = 1.0842, X-squared df = 3, p-value = 0.7809
+
+# G test on the AMP type for Atlantic
+GTest(c(55,4,1,2,2),p=c(0.804,0.13,0.011,0.033,0.022))
+#G = 3.3556, X-squared df = 4, p-value = 0.5002
+
+# G test on the AMP type for Mediterranean 
+GTest(c(26,1,0,1,3,1),p=c(0.816,0.013,0.053,0.053,0.039,0.026))
+#G = 6.1043, X-squared df = 5, p-value = 0.2962
+
+# G test between AMP of the 3 maritime regions
+GTest(c(56,64,32),p=c(0.373,0.343,0.284))
+#G = 5.7008, X-squared df = 2, p-value = 0.05782
+
+# G test on the managers of the 3 maritime regions
+GTest(c(26,30,22),p=c(0.368,0.316,0.316))
+#G = 1.6445, X-squared df = 2, p-value = 0.4394
+
+#############2. Question-by-Question Analysis #############
+
+###Test Cochran-Mantel-Haenszel on knowledge
+data_78l_con  <- read_excel("DataR_connaissances_78lignes_SElinear_26.09.24.xlsx")
+
+mantelhaen.test(data_78l_con$Genre,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$type_AMP,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$zone_geogr,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$creation,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$superfi,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$superfiMarine,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$poste,data_78l_con$Connaissance,data_78l_con$Service)
+mantelhaen.test(data_78l_con$site,data_78l_con$Connaissance,data_78l_con$Service)
+
+##Test Cochran-Mantel-Haenszel on evolution recreation
+data_78l_evol <- read_excel("DataR_evolution_recreation_78lignes_SElinear_26.09.24.xlsx")
+
+mantelhaen.test(data_78l_evol$Genre,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$type_AMP,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$zone_geogr,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$creation,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$superfi,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$superfiMarine,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$poste,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$site,data_78l_evol$Evolution,data_78l_evol$Service)
+
+##Test Cochran-Mantel-Haenszel on evolution representation 
+data_78l_evol <- read_excel("DataR_evolution_representation_78lignes_SElinear_26.09.24.xlsx")
+
+mantelhaen.test(data_78l_evol$Genre,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$type_AMP,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$zone_geogr,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$creation,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$superfi,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$superfiMarine,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$poste,data_78l_evol$Evolution,data_78l_evol$Service)
+mantelhaen.test(data_78l_evol$site,data_78l_evol$Evolution,data_78l_evol$Service)
+
+#################3. Multivariate Analysis #################
+################## 3.1. MCA ###############
+library(tidyverse)
+library(ade4)
+library(factoextra)
+library(questionr)
+library(shiny)
+library(readxl)
+data_ACM2_clean <- read_excel("data_ACM_78lignes_15-10-24.CLEAN.xlsx")
+
+View(data_ACM2_clean)
+variables <- c("sexe", "type_AMP", "zone_geogr", "creation","superfi","superfiMarine", "poste", "site", "conn_RHFA", "conn_RCEFA", "conn_REIM", "conn_RPC", "conn_RPP", "conn_PEC", "conn_SGES", "conn_ZRN", "conn_SART", "conn_ESMBE", "conn_VE", "conn_VSS", "conn_VHL", "conn_ORS", "conn_OES", "pech_recr", "loisirs_naut", "loisirs_plage_litt", "baign", "loisirs_obs_hors_eau", "loisirs_obs_sous_eau", "evol_VE", "evol_VSS", "evol_VHL", "evol_ORS", "evol_OES")
+
+##### MCA - Knowledge
+for (variable in variables) {
+  data_ACM2_clean[[variable]] <- as.factor(data_ACM2_clean[[variable]])
+}
+test_ACM <- data_ACM2_clean %>%
+  select(sexe, poste, site, type_AMP,zone_geogr,creation,superfi, superfiMarine, conn_RHFA, conn_RCEFA, conn_REIM, conn_RPC, 
+         conn_RPP, conn_PEC, conn_SGES, conn_ZRN, conn_SART, conn_ESMBE, conn_VE, conn_VSS, conn_VHL, conn_ORS, conn_OES)
+acm <- dudi.acm(test_ACM, scannf = FALSE, nf = Inf)
+explor::explor(acm) 
+
+##### MCA -  Evolution 
+for (variable in variables) {
+  data_ACM2_clean[[variable]] <- as.factor(data_ACM2_clean[[variable]])
+}
+test_ACM <- data_ACM2_clean %>%
+  select(sexe, poste, site, type_AMP,zone_geogr,creation,superfi, superfiMarine, pech_recr, loisirs_naut,	loisirs_plage_litt,	baign,	loisirs_obs_hors_eau,	loisirs_obs_sous_eau,	evol_VE, evol_VSS, 
+         evol_VHL, evol_ORS, evol_OES)
+acm <- dudi.acm(test_ACM, scannf = FALSE, nf = Inf)
+explor::explor(acm) 
+
+################## 3.2. GLMM ###############
+install.packages("tidyverse")  
+install.packages("readxl")
+install.packages("glmmTMB")
+install.packages("emmeans")
+library(readxl)
+library(tidyverse)
+library(glmmTMB)
+library(emmeans)
+
+##################GLMM Knwoledge * type AMP###############
+dede1 <- read_excel("DataR_connaissances_78lignes_SElinear_26.09.24.xlsx")
+
+dede1 <- DataR_connaissances_78lignes_SElinear_26_09_24
+
+# Calcul on initial data
+dede <- dede1 %>%
+  group_by(type_AMP,Connaissance) %>%
+  summarise(count=n())
+
+totals <- dede %>%
+  group_by(type_AMP) %>%
+  summarise(total_count = sum(count))
+
+dede_ratios <- dede %>%
+  left_join(totals, by = "type_AMP") 
+
+model_glmm <- glmmTMB(cbind(count, total_count - count) ~ type_AMP * Connaissance+ (1|type_AMP), data = dede_ratios, family = binomial)
+summary(model_glmm)
+
+emmeans_results <- emmeans(model_glmm, ~ type_AMP * Connaissance,type= "response")
+
+GG<-data.frame(pairs(emmeans_results))
+
+GG$p.value[GG$p.value == "<.0001"] <- 0.0001
+GG$p.value <- as.numeric(GG$p.value)
+GG$level <- sub("^(.*) / .*", "\\1", GG$contrast)
+GG$level <- gsub("^(N2000|PNM|PNR|RNN|RNR|PN) ", "", GG$level)
+
+GG$prefix <- sub("^(N2000|PNM|PNR|RNN|RNR|PN) .*", "\\1", GG$contrast)
+GG$after_slashtype <- sub("^.* / (.*)$", "\\1", GG$contrast)
+GG$after_slashtype <- str_extract(GG$after_slashtype, "tres_faible|pas_conc|faible|eleve|acceptable")
+GG$after_slash <- sub("^.* / (.*)$", "\\1", GG$contrast)
+GG$after_slash <- sub("^(N2000|PNM|PNR|RNN|RNR|PN) .*", "\\1", GG$after_slash)
+
+GG<-GG %>% filter(level==after_slashtype)
+
+# make the figure 
+ggplot(GG, aes(x = prefix, y = odds.ratio, color = level, group = level)) +
+  geom_point(position = position_dodge(width = 0.5), size = 3) +  # Points pour les odds ratios avec dodge
+  geom_errorbar(aes(ymin = odds.ratio - SE, ymax = odds.ratio + SE), 
+                width = 0.2, position = position_dodge(width = 0.5)) +  # Barres d'erreur avec dodge
+  labs(x = "Before", y = "Odds Ratio", title = "GLMM - data78L - Knowledge - type AMP") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1", name = "Knowledge") +  # Palette de couleurs pour les niveaux
+  facet_wrap(.~after_slash, scales = "free", ncol = 1) +  # pour la disposition des graphiques dans l'image! 
+  coord_flip() + # Inverser les axes pour une meilleure lisibilité
+  geom_hline(aes(yintercept=1), linetype=2, color="gray")
+
+
+##################GLMM on evolution * type AMP###############
+
+dede2 <- read_excel("DataR_evolution_78lignes_SElinear_26.09.24.xlsx")
+
+dede <- dede2 %>%
+  group_by(type_AMP,Evolution) %>%
+  summarise(count=n())
+
+totals <- dede %>%
+  group_by(type_AMP) %>%
+  summarise(total_count = sum(count))
+
+dede_ratios <- dede %>%
+  left_join(totals, by = "type_AMP") 
+
+model_glmm <- glmmTMB(cbind(count, total_count - count) ~ type_AMP * Evolution+ (1|type_AMP), data = dede_ratios, family = binomial)
+summary(model_glmm)
+
+emmeans_results <- emmeans(model_glmm, ~ type_AMP * Evolution,type= "response")
+
+GG<-data.frame(pairs(emmeans_results))
+
+GG$p.value[GG$p.value == "<.0001"] <- 0.0001
+GG$p.value <- as.numeric(GG$p.value)
+GG$level <- sub("^(.*) / .*", "\\1", GG$contrast)
+GG$level <- gsub("^(N2000|PNM|PNR|RNN|RNR|PN) ", "", GG$level)
+
+GG$prefix <- sub("^(N2000|PNM|PNR|RNN|RNR|PN) .*", "\\1", GG$contrast)
+GG$after_slashtype <- sub("^.* / (.*)$", "\\1", GG$contrast)
+GG$after_slashtype <- str_extract(GG$after_slashtype, "NA|pas_conc|nsp|augm|stable|tres_var|dimin")
+GG$after_slash <- sub("^.* / (.*)$", "\\1", GG$contrast)
+GG$after_slash <- sub("^(N2000|PNM|PNR|RNN|RNR|PN) .*", "\\1", GG$after_slash)
+
+GG<-GG %>% filter(level==after_slashtype)
+
+# Make the figure
+ggplot(GG, aes(x = prefix, y = odds.ratio, color = level, group = level)) +
+  geom_point(position = position_dodge(width = 0.5), size = 3) +  # Points pour les odds ratios avec dodge
+  geom_errorbar(aes(ymin = odds.ratio - SE, ymax = odds.ratio + SE), 
+                width = 0.2, position = position_dodge(width = 0.5)) +  # Barres d'erreur avec dodge
+  labs(x = "Before", y = "Odds Ratio", title = "GLMM - data78L - Evolution - type AMP") +
+  theme_minimal() +
+  scale_color_manual(values = c("red", "blue", "#006400", "purple", "orange","black","brown"), name = "Knowledge") +  # Palette de couleurs pour les niveaux
+  facet_wrap(.~after_slash, scales = "free", ncol = 1) +  # pour la disposition des graphiques dans l'image! 
+  coord_flip() + # Inverser les axes pour une meilleure lisibilité
+  geom_hline(aes(yintercept=1), linetype=2, color="gray")
